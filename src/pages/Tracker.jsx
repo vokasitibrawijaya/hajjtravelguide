@@ -129,7 +129,7 @@ export default function Tracker() {
   }, [myLocation, isBroadcasting, isTracking])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflowY: 'auto', gap: '16px', padding: '8px' }}>
       <div>
         <h1 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Navigation size={24} color="var(--primary)" />
@@ -269,7 +269,7 @@ export default function Tracker() {
       </div>
 
       {/* Peta */}
-      <div style={{ flex: 1, height: '45vh', minHeight: '300px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #eee', position: 'relative' }}>
+      <div style={{ flex: 1, minHeight: '200px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #eee', position: 'relative' }}>
         <Map
           ref={mapRef}
           initialViewState={{
