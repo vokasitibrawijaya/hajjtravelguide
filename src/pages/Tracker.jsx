@@ -38,6 +38,13 @@ export default function Tracker() {
     }
     fetchUsernames()
   }, [])
+  // Filtered suggestions based on the current input values
+  const filteredMyNameSuggestions = userSuggestions.filter(u =>
+    myName && u.toLowerCase().includes(myName.toLowerCase())
+  )
+  const filteredTargetNameSuggestions = userSuggestions.filter(u =>
+    targetName && u.toLowerCase().includes(targetName.toLowerCase())
+  )
 
   // Broadcast location effect
   useEffect(() => {
@@ -150,14 +157,14 @@ export default function Tracker() {
               type="text" 
               placeholder="Masukkan Nama Anda" 
               className="form-input"
-              list="user-suggestions"
+              list="my-suggestions"
               value={myName}
               onChange={(e) => setMyName(e.target.value)}
               disabled={isBroadcasting}
               style={{ width: '100%', padding: '8px', marginBottom: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
             />
-            <datalist id="user-suggestions">
-              {userSuggestions.map((u) => (
+            <datalist id="my-suggestions">
+              {filteredMyNameSuggestions.map((u) => (
                 <option key={u} value={u} />
               ))}
             </datalist>
@@ -188,14 +195,14 @@ export default function Tracker() {
               type="text" 
               placeholder="Masukkan Nama Target" 
               className="form-input"
-              list="user-suggestions"
+              list="target-suggestions"
               value={targetName}
               onChange={(e) => setTargetName(e.target.value)}
               disabled={isTracking}
               style={{ width: '100%', padding: '8px', marginBottom: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
             />
-            <datalist id="user-suggestions">
-              {userSuggestions.map((u) => (
+            <datalist id="target-suggestions">
+              {filteredTargetNameSuggestions.map((u) => (
                 <option key={u} value={u} />
               ))}
             </datalist>

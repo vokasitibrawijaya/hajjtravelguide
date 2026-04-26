@@ -179,3 +179,144 @@ h1, h2, h3 {
 .btn-danger {
   background: var(--danger);
 }
+
+/* ===== PDF Viewer ===== */
+.pdf-viewer-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  min-height: calc(100vh - 80px);
+  background: linear-gradient(160deg, #f4f5f0, #e8ece0);
+}
+
+.pdf-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+  background: var(--primary);
+  color: white;
+}
+
+.pdf-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+}
+
+.pdf-download-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.18);
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+  transition: background 0.2s, transform 0.15s;
+}
+.pdf-download-btn:hover {
+  background: rgba(255,255,255,0.30);
+  transform: scale(1.04);
+}
+
+.pdf-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: white;
+  border-bottom: 1px solid #e5e7e3;
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.pdf-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background);
+  border: 1px solid #dce0d5;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: var(--primary);
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+.pdf-btn:hover:not(:disabled) {
+  background: var(--primary);
+  color: white;
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(74,93,35,0.25);
+}
+.pdf-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.pdf-page-info, .pdf-zoom-info {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  min-width: 52px;
+  text-align: center;
+}
+
+.pdf-divider {
+  width: 1px;
+  height: 24px;
+  background: #dce0d5;
+  margin: 0 4px;
+}
+
+.pdf-canvas-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px 8px;
+  background: #d6d9cf;
+}
+
+.pdf-canvas {
+  max-width: 100%;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.22);
+  display: block;
+}
+
+.pdf-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 20px;
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.pdf-spinner {
+  animation: spin 1.2s linear infinite;
+}
+
+.pdf-error {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--danger);
+  font-size: 14px;
+}
