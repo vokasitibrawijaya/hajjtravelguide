@@ -11,11 +11,6 @@ export default function Peta() {
 
   const makkahCenter = { longitude: 39.8262, latitude: 21.4225 }
   const madinahCenter = { longitude: 39.6111, latitude: 24.4672 }
-  
-  const [viewState, setViewState] = useState({
-    ...makkahCenter,
-    zoom: 13
-  })
 
   const placesToShow = historicalPlaces.filter(p => p.city === city)
 
@@ -30,14 +25,13 @@ export default function Peta() {
         zoom: 13,
         duration: 1500
       })
-    } else {
-      setViewState({ ...newCenter, zoom: 13 })
     }
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
       <h1>Peta Terbuka (OpenFreeMap)</h1>
+      <p className="text-muted" style={{ marginBottom: '16px' }}>Peta interaktif menggunakan data OpenStreetMap.</p>
       
       <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
         <button 
@@ -56,11 +50,15 @@ export default function Peta() {
         </button>
       </div>
 
-      <div style={{ flex: 1, minHeight: '400px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #eee', position: 'relative' }}>
+      {/* Fix height container agar map pasti muncul di layar sekecil apapun */}
+      <div style={{ height: '65vh', minHeight: '400px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #eee', position: 'relative' }}>
         <Map
           ref={mapRef}
-          {...viewState}
-          onMove={evt => setViewState(evt.viewState)}
+          initialViewState={{
+            longitude: makkahCenter.longitude,
+            latitude: makkahCenter.latitude,
+            zoom: 13
+          }}
           mapStyle="https://tiles.openfreemap.org/styles/liberty"
           style={{ width: '100%', height: '100%' }}
         >
