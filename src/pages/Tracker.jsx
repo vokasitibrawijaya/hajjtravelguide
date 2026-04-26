@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import Map, { Marker } from 'react-map-gl/maplibre'
+import Map, { Marker, Source, Layer } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { MapPin, Navigation, Radio, Search } from 'lucide-react'
+import { MapPin, Navigation, Radio, Search, Map as MapIcon } from 'lucide-react'
 
 export default function Tracker() {
   const [myName, setMyName] = useState('')
@@ -13,7 +13,8 @@ export default function Tracker() {
   
   const [targetLocation, setTargetLocation] = useState(null)
   const [myLocation, setMyLocation] = useState(null)
-  
+  const [routeData, setRouteData] = useState(null) // GeoJSON for path
+
   const watchIdRef = useRef(null)
   const pollIntervalRef = useRef(null)
   const mapRef = useRef(null)
@@ -180,19 +181,70 @@ export default function Tracker() {
               style={{ width: '100%', padding: '8px', marginBottom: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
             />
             <button 
+            className="btn" 
+            style={{ width: '100%', background: isTracking ? '#e74c3c' : 'var(--gold)', color: 'white' }}
+            onClick={() => {
+              if (!isTracking && !targetName.trim()) {
+                alert('Harap masukkan nama jemaah yang ingin dicari.')
+                return
+              }
+              setIsTracking(!isTracking)
+            }}
+          >
+            {isTracking ? 'Berhenti' : 'Mulai Lacak'}
+          </button>
+          {isTracking && !targetLocation && <p style={{ fontSize: '11px', color: 'var(--gold)', marginTop: '8px', textAlign: 'center' }}>Mencari lokasi...</p>}
+          {/* Tampilkan Rute */}
+          {targetName && (
+            <button 
               className="btn" 
-              style={{ width: '100%', background: isTracking ? '#e74c3c' : 'var(--gold)', color: 'white' }}
-              onClick={() => {
-                if (!isTracking && !targetName.trim()) {
-                  alert('Harap masukkan nama jemaah yang ingin dicari.')
+              style={{ width: '100%', marginTop: '8px', background: 'var(--primary)', color: 'white' }}
+              onClick={async () => {
+                if (!targetName.trim()) {
+                  alert('Masukkan nama jemaah terlebih dahulu.')
                   return
                 }
-                setIsTracking(!isTracking)
+                const { data, error } = await supabase
+                  .from('hajjtracker')
+                  .select('lat,long,created_at')
+                  .eq('username', targetName)
+                  .order('created_at', { ascending: true })
+                if (error) {
+                  console.error('Error fetch route:', error)
+                  alert('Gagal mengambil riwayat lokasi.')
+                } else if (data && data.length > 0) {
+                  const coords = data.map(d => [parseFloat(d.long), parseFloat(d.lat)])
+                  const geojson = {
+                    type: 'Feature',
+                    geometry: {
+                      type: 'LineString',
+                      coordinates: coords
+                    },
+                    properties: {}
+                  }
+                  setRouteData(geojson)
+                  // zoom ke seluruh path
+                  if (mapRef.current && coords.length > 0) {
+                    const bounds = coords.reduce((b, c) => {
+                      return {
+                        minLng: Math.min(b.minLng, c[0]),
+                        minLat: Math.min(b.minLat, c[1]),
+                        maxLng: Math.max(b.maxLng, c[0]),
+                        maxLat: Math.max(b.maxLat, c[1])
+                      }
+                    }, { minLng: coords[0][0], minLat: coords[0][1], maxLng: coords[0][0], maxLat: coords[0][1] })
+                    const padding = 0.01
+                    mapRef.current.fitBounds([
+                      [bounds.minLng - padding, bounds.minLat - padding],
+                      [bounds.maxLng + padding, bounds.maxLat + padding]
+                    ], { duration: 1000 })
+                  }
+                }
               }}
             >
-              {isTracking ? 'Berhenti' : 'Mulai Lacak'}
+              Tampilkan Rute
             </button>
-            {isTracking && !targetLocation && <p style={{ fontSize: '11px', color: 'var(--gold)', marginTop: '8px', textAlign: 'center' }}>Mencari lokasi...</p>}
+          )}
           </div>
         </div>
       </div>
@@ -227,6 +279,21 @@ export default function Tracker() {
                 <MapPin size={40} fill="var(--gold)" color="white" style={{ filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.5))' }} />
               </div>
             </Marker>
+          )}
+
+          {/* Render Route Path if available */}
+          {routeData && (
+            <Source id="route" type="geojson" data={routeData}>
+              <Layer
+                id="route-line"
+                type="line"
+                paint={{
+                  'line-color': '#FF5733',
+                  'line-width': 4,
+                  'line-opacity': 0.8
+                }}
+              />
+            </Source>
           )}
         </Map>
       </div>
