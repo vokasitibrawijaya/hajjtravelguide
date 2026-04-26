@@ -13,34 +13,45 @@ export default function Tracker() {
   
   const [targetLocation, setTargetLocation] = useState(null)
   const [myLocation, setMyLocation] = useState(null)
+
   const [routeData, setRouteData] = useState(null) // GeoJSON for path
+  const [userSuggestions, setUserSuggestions] = useState([]) // autocomplete list
 
   const watchIdRef = useRef(null)
   const pollIntervalRef = useRef(null)
   const mapRef = useRef(null)
 
   // -- LOGIKA BROADCAST (Kirim Posisi Saya) --
+  // Fetch distinct usernames for autocomplete on component mount
+  useEffect(() => {
+    const fetchUsernames = async () => {
+      const { data, error } = await supabase
+        .from('hajjtracker')
+        .select('username')
+        .order('username')
+      if (error) {
+        console.error('Error fetching usernames:', error)
+        return
+      }
+      const uniq = Array.from(new Set(data.map(item => item.username).filter(Boolean)))
+      setUserSuggestions(uniq)
+    }
+    fetchUsernames()
+  }, [])
+
+  // Broadcast location effect
   useEffect(() => {
     if (isBroadcasting && myName.trim() !== '') {
-      // Mulai watchPosition
       if (navigator.geolocation) {
         watchIdRef.current = navigator.geolocation.watchPosition(
           async (position) => {
             const lat = position.coords.latitude.toString()
             const lng = position.coords.longitude.toString()
-            
             setMyLocation({ lat: position.coords.latitude, lng: position.coords.longitude })
-
-            // Kirim ke Supabase
             const { error } = await supabase
               .from('hajjtracker')
-              .insert([
-                { username: myName, lat: lat, long: lng }
-              ])
-            
-            if (error) {
-              console.error('Error mempublikasikan lokasi:', error)
-            }
+              .insert([{ username: myName, lat, long: lng }])
+            if (error) console.error('Error mempublikasikan lokasi:', error)
           },
           (error) => {
             console.error('Error mendapatkan lokasi:', error)
@@ -54,17 +65,13 @@ export default function Tracker() {
         setIsBroadcasting(false)
       }
     } else {
-      // Hentikan watchPosition
       if (watchIdRef.current !== null) {
         navigator.geolocation.clearWatch(watchIdRef.current)
         watchIdRef.current = null
       }
     }
-
     return () => {
-      if (watchIdRef.current !== null) {
-        navigator.geolocation.clearWatch(watchIdRef.current)
-      }
+      if (watchIdRef.current !== null) navigator.geolocation.clearWatch(watchIdRef.current)
     }
   }, [isBroadcasting, myName])
 
@@ -143,11 +150,17 @@ export default function Tracker() {
               type="text" 
               placeholder="Masukkan Nama Anda" 
               className="form-input"
+              list="user-suggestions"
               value={myName}
               onChange={(e) => setMyName(e.target.value)}
               disabled={isBroadcasting}
               style={{ width: '100%', padding: '8px', marginBottom: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
             />
+            <datalist id="user-suggestions">
+              {userSuggestions.map((u) => (
+                <option key={u} value={u} />
+              ))}
+            </datalist>
             <button 
               className="btn" 
               style={{ width: '100%', background: isBroadcasting ? '#e74c3c' : 'var(--primary)', color: 'white' }}
@@ -175,11 +188,17 @@ export default function Tracker() {
               type="text" 
               placeholder="Masukkan Nama Target" 
               className="form-input"
+              list="user-suggestions"
               value={targetName}
               onChange={(e) => setTargetName(e.target.value)}
               disabled={isTracking}
               style={{ width: '100%', padding: '8px', marginBottom: '10px', borderRadius: '6px', border: '1px solid #ccc' }}
             />
+            <datalist id="user-suggestions">
+              {userSuggestions.map((u) => (
+                <option key={u} value={u} />
+              ))}
+            </datalist>
             <button 
             className="btn" 
             style={{ width: '100%', background: isTracking ? '#e74c3c' : 'var(--gold)', color: 'white' }}
