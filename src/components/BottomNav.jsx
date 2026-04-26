@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Route, Map, BookOpen, Info } from 'lucide-react'
+import { Route, Map, BookOpen, Info, Navigation } from 'lucide-react'
 
 export default function BottomNav() {
   return (
@@ -19,6 +19,10 @@ export default function BottomNav() {
       <NavLink to="/info" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
         <Info size={24} className="nav-icon" />
         <span>Info</span>
+      </NavLink>
+      <NavLink to="/tracker" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+        <Navigation size={24} className="nav-icon" />
+        <span>Pelacak</span>
       </NavLink>
     </nav>
   )

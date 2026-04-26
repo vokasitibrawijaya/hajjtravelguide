@@ -4,6 +4,7 @@ import Milestone from './pages/Milestone'
 import Sejarah from './pages/Sejarah'
 import Peta from './pages/Peta'
 import Info from './pages/Info'
+import Tracker from './pages/Tracker'
 import './index.css'
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
           <Route path="/sejarah" element={<Sejarah />} />
           <Route path="/peta" element={<Peta />} />
           <Route path="/info" element={<Info />} />
+          <Route path="/tracker" element={<Tracker />} />
         </Routes>
       </div>
       <BottomNav />
